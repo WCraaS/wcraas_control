@@ -1,5 +1,5 @@
 Welcome to wcraas_control's documentation!
-======================================
+==========================================
 
 .. toctree::
    :maxdepth: 2
