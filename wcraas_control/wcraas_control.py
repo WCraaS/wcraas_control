@@ -87,5 +87,14 @@ class ControlWorker(WcraasWorker):
                     break
                 await asyncio.sleep(self.poll_interval)
 
+    async def list_collections(self):
+        """
+        List the collections available at the storage node.
+        """
+        async with self._amqp_pool.acquire() as channel:
+            rpc = await RPC.create(channel)
+            resp = await rpc.proxy.list_collections()
+        return resp
+
     def __repr__(self):
         return f"{self.__class__.__name__}(amqp={self.amqp}, redis={self.redis}, interval={self.poll_interval}, loglevel={self.loglevel})"
