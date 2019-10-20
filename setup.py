@@ -41,6 +41,7 @@ setup(
     entry_points={
         'console_scripts': [
             'wcraas_control=wcraas_control.cli:main',
+            'wcraas_list_collections=wcraas_control.cli:list_collections',
         ],
     },
     install_requires=requirements,
