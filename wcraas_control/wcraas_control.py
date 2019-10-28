@@ -94,6 +94,8 @@ class ControlWorker(WcraasWorker):
                     self.logger.info(f"Adding {inbound_url} due to cache miss!")
                 await asyncio.sleep(self.poll_interval)
 
+    async def start(self): pass
+
     async def list_collections(self):
         """
         List the collections available at the storage node.
