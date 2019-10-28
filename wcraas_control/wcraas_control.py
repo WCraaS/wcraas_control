@@ -63,6 +63,9 @@ class ControlWorker(WcraasWorker):
         async with self._amqp_pool.acquire() as channel:  # type: aio_pika.Channel
             rpc = await RPC.create(channel)
             while True:
+                # If there are no URLs left to crawl exit.
+                if not urls:
+                    break
                 _url = urls.pop()
                 # Acquire lock for the URL
                 await redis_pool.set(_url, RedisLockState.LOCK.value)
@@ -83,8 +86,6 @@ class ControlWorker(WcraasWorker):
                         continue
                     urls.append(inbound_url)
                 # If there are no URLs left to crawl exit
-                if not urls:
-                    break
                 await asyncio.sleep(self.poll_interval)
 
     async def list_collections(self):
