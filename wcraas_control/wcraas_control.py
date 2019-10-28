@@ -67,11 +67,15 @@ class ControlWorker(WcraasWorker):
                 if not urls:
                     break
                 _url = urls.pop()
+                self.logger.info(f"Processing {_url} ...")
                 # Acquire lock for the URL
                 await redis_pool.set(_url, RedisLockState.LOCK.value)
                 # Delegate discovery through RPC
                 try:
                     resp = await rpc.proxy.discover(url=_url)
+                    self.logger.info(f"RPC for {_url} completed successfully!")
+                    self.logger.debug(f"RPC response for {_url}:")
+                    self.logger.debug(resp)
                 except Exception as err:
                     self.logger.error(traceback.format_exc())
                     self.logger.error(err)
@@ -82,10 +86,12 @@ class ControlWorker(WcraasWorker):
                 # exists in redis & is not FREE; if so skip it otherwise add it to the
                 # deque of URLs to crawl.
                 for inbound_url in resp["data"]["inbound"]:
+                    self.logger.info(f"Checking {inbound_url} against cache ...")
                     if await redis_pool.get(inbound_url):
+                        self.logger.info(f"Skipping {inbound_url} due to cache hit!")
                         continue
                     urls.append(inbound_url)
-                # If there are no URLs left to crawl exit
+                    self.logger.info(f"Adding {inbound_url} due to cache miss!")
                 await asyncio.sleep(self.poll_interval)
 
     async def list_collections(self):
